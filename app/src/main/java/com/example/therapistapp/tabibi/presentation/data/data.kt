@@ -13,12 +13,12 @@ val ania = Therapist(
 )
 
 val antony = Patient(
-    "Antony",
-    "Smith",
+    "Mohammed",
+    "Gouaouri",
     "07 June 1995",
-    27,
+    22,
     "Male",
-    "0567586786",
+    "0561586786",
     "",
     listOf(
         Complaint("bad mood"),
@@ -36,7 +36,7 @@ val andy = Patient(
     "07 June 1991",
     30,
     "Male",
-    "0567586786",
+    "0561586786",
     "",
     listOf(
         Complaint("bad mood"),

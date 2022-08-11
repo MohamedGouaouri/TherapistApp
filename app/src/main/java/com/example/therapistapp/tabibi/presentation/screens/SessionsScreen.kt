@@ -1,12 +1,14 @@
 package com.example.therapistapp.tabibi.presentation.screens
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement.Absolute.Center
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -27,18 +29,26 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.therapistapp.R
 import com.example.therapistapp.tabibi.domain.models.Session
+import com.example.therapistapp.tabibi.domain.services.ConnectivityObserver
+import com.example.therapistapp.tabibi.domain.services.NetworkConnectivityObserver
+import com.example.therapistapp.tabibi.presentation.components.BottomNavigation
 import com.example.therapistapp.tabibi.presentation.ui.theme.*
 import com.example.therapistapp.tabibi.presentation.utils.standardQuadFromTo
 import com.example.therapistapp.tabibi.presentation.viewmodels.SessionListViewMode
-import com.example.therapistapp.tabibi.presentation.components.BottomNavigation
+
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SessionsScreen(
     navController: NavController,
+    ctx: Context,
     viewModel: SessionListViewMode = hiltViewModel()
 ) {
 
     val state = viewModel.state.value
+    val connectivityObserver = NetworkConnectivityObserver(ctx)
+    val networkState by connectivityObserver.observe().collectAsState(
+        initial = ConnectivityObserver.Status.Unavailable
+    )
 
     TherapistAppTheme {
         Scaffold() {
@@ -82,14 +92,28 @@ fun SessionsScreen(
                         ) {
                             // Image box
                             // TODO: Change this to network image
-                            Image(
-                                painter = painterResource(id = R.drawable.profile),
-                                contentDescription = "",
-                                modifier = Modifier
-                                    .height(48.dp)
-                                    .width(48.dp)
-                                    .clip(CircleShape)
-                            )
+                            Box(modifier = Modifier
+                                .height(54.dp)
+                                .width(54.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    if (networkState == ConnectivityObserver.Status.Available){
+                                        Color.Green
+                                    }else{
+                                        Gray
+                                    }
+                                ),
+                                contentAlignment = Alignment.Center
+                            ){
+                                Image(
+                                    painter = painterResource(id = R.drawable.profile),
+                                    contentDescription = "",
+                                    modifier = Modifier
+                                        .height(48.dp)
+                                        .width(48.dp)
+                                        .clip(CircleShape)
+                                )
+                            }
 
                             Box(modifier = Modifier
                                 .height(48.dp)
@@ -108,7 +132,8 @@ fun SessionsScreen(
 //                                Spacer(modifier = Modifier.height(50.dp))
                         // Greeting
                         Greeting(
-                            modifier = Modifier.padding(top = 50.dp)
+                            modifier = Modifier.padding(top = 50.dp),
+                            sessions = state.sessions.size
                         )
 
                         // Days chips
@@ -309,8 +334,6 @@ fun SessionsItem(
                             .width(48.dp)
                             .clip(CircleShape)
                     )
-
-
 
                     Column (
                         modifier = Modifier

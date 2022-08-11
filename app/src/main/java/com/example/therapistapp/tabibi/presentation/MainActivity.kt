@@ -23,7 +23,8 @@ class MainActivity : ComponentActivity() {
             NavHost(navController = navController, startDestination = Screens.SessionsScreen.route){
                 composable(route = Screens.SessionsScreen.route){
                     SessionsScreen(
-                        navController = navController
+                        navController = navController,
+                        ctx = context
                     )
                 }
                 composable(route = Screens.SessionDetailsScreen.route + "/{sessionId}"){
