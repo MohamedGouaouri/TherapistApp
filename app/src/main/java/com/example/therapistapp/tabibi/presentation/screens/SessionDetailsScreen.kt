@@ -3,6 +3,8 @@ package com.example.therapistapp.tabibi.presentation.screens
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -18,6 +20,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,8 +38,10 @@ import androidx.navigation.NavController
 import com.example.therapistapp.R
 import com.example.therapistapp.tabibi.presentation.ui.theme.*
 import com.example.therapistapp.tabibi.presentation.viewmodels.SessionDetailsViewModel
+import com.example.therapistapp.tabibi.presentation.viewmodels.states.SessionDetailsState
 import com.google.accompanist.flowlayout.FlowRow
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun SessionDetailsScreen(
     viewModel: SessionDetailsViewModel = hiltViewModel(),
@@ -132,14 +141,8 @@ fun SessionDetailsScreen(
                 }
 
                 Tabs(
-                    modifier = Modifier.padding(vertical = 10.dp)
-                )
-
-                GeneralInfo(
-                    firstName = state.session.patient.firstName,
-                    lastName = state.session.patient.lastName,
-                    dob = state.session.patient.dateOfBirth,
-                    gender = state.session.patient.gender
+                    modifier = Modifier.padding(vertical = 10.dp),
+                    state = state
                 )
 
             }
@@ -218,37 +221,69 @@ fun ComplaintTag(
 
 @Composable
 fun Tabs(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    state: SessionDetailsState
 ) {
-    LazyRow(
-        modifier = modifier
-    ){
-        item {
-            Text(
-                text = "Information",
-                style = MaterialTheme.typography.h3,
-                color = Green,
-                modifier = Modifier.padding(end = 20.dp)
-            )
+    var index by remember {
+        mutableStateOf(0)
+    }
+    Column {
+        LazyRow(
+            modifier = modifier
+        ){
+            item {
+
+                    Text(
+                        text = "Information",
+                        style = MaterialTheme.typography.h3,
+                        color = if (index == 0) Green else lightGray,
+                        modifier = Modifier
+                            .padding(end = 20.dp)
+                            .clickable {
+                                index = 0
+                            }
+                    )
+
+            }
+            item {
+
+                    Text(
+                        text = "Medicine",
+                        style = MaterialTheme.typography.h3,
+                        color = if (index == 1) Green else lightGray,
+                        modifier = Modifier
+                            .padding(end = 20.dp)
+                            .clickable {
+                                index = 1
+                            }
+
+                    )
+
+            }
+            item {
+                Text(
+                        text = "Diagnoses",
+                        style = MaterialTheme.typography.h3,
+                        color = if (index == 2) Green else lightGray,
+                        modifier = Modifier
+                            .padding(end = 20.dp)
+                            .clickable {
+                                index = 2
+                            }
+
+                    )
+
+            }
         }
-        item {
-            Text(
-                text = "Medicine",
-                style = MaterialTheme.typography.h3,
-                color = lightGray,
-                modifier = Modifier.padding(end = 20.dp)
-
+        when (index){
+            0 -> GeneralInfo(
+                firstName = state.session.patient.firstName,
+                lastName = state.session.patient.lastName,
+                dob = state.session.patient.dateOfBirth,
+                gender = state.session.patient.gender
             )
-        }
-        item {
-            Text(
-                text = "Diagnoses",
-                style = MaterialTheme.typography.h3,
-                color = lightGray,
-                modifier = Modifier.padding(end = 20.dp)
-
-
-            )
+            1 -> MedicineInfo()
+            2 -> DiagnosesInfo()
         }
     }
 }
@@ -375,5 +410,29 @@ fun GeneralInfo(
             }
         }
     }
+}
 
+@Composable
+fun MedicineInfo() {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .clip(RoundedCornerShape(10.dp))
+        .background(Transparent)
+        .padding(20.dp),
+        contentAlignment = Alignment.Center
+    ){
+        Text(text = "MedicineInfo")
+    }
+}
+@Composable
+fun DiagnosesInfo() {
+    Box(modifier = Modifier
+        .fillMaxSize()
+        .clip(RoundedCornerShape(10.dp))
+        .background(Transparent)
+        .padding(20.dp),
+        contentAlignment = Alignment.Center
+    ){
+        Text(text = "DiagnosesInfo")
+    }
 }
