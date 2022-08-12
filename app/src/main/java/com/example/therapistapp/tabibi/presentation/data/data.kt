@@ -1,9 +1,12 @@
 package com.example.therapistapp.tabibi.presentation.data
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.example.therapistapp.tabibi.domain.models.Complaint
 import com.example.therapistapp.tabibi.domain.models.Patient
 import com.example.therapistapp.tabibi.domain.models.Session
 import com.example.therapistapp.tabibi.domain.models.Therapist
+import java.time.LocalDate
 
 
 val ania = Therapist(
@@ -47,12 +50,25 @@ val andy = Patient(
 )
 
 
+@RequiresApi(Build.VERSION_CODES.O)
+val days = listOf<LocalDate>(
+    LocalDate.parse("2022-08-10"),
+    LocalDate.parse("2022-08-11"),
+    LocalDate.parse("2022-08-12"),
+    LocalDate.parse("2022-08-13"),
+    LocalDate.parse("2022-08-14")
+)
+
+@RequiresApi(Build.VERSION_CODES.O)
+val today: LocalDate = LocalDate.parse("2022-08-12")
+
+@RequiresApi(Build.VERSION_CODES.O)
 val sessions = listOf<Session>(
     Session(
         id = 0,
         patient = antony,
         therapist = ania,
-        "11 Feb 2022",
+        today,
         "11:00",
         "11:30"
     ),
@@ -61,9 +77,9 @@ val sessions = listOf<Session>(
         id = 1,
         patient = andy,
         therapist = ania,
-        "11 Feb 2022",
+        days[3],
         "11:30",
         "12:00"
     ),
-
 )
+

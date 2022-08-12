@@ -1,5 +1,8 @@
 package com.example.therapistapp.tabibi.common
 
 object Constants {
-    val PARAM_SESSION_ID = "sessionId"
+    const val PARAM_SESSION_ID = "sessionId"
+//    val days = mapOf<>(
+//
+//    )
 }

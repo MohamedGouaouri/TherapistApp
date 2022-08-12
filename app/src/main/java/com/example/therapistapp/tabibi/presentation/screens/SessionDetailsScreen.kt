@@ -103,7 +103,7 @@ fun SessionDetailsScreen(
                 UserInfo(
                     patientName = state.session.patient.firstName,
                     age = state.session.patient.age,
-                    sessionDate = state.session.sessionData,
+                    sessionDate = state.session.sessionData.toString(),
                     sessionFrom = state.session.from,
                     sessionTo = state.session.to,
                 )

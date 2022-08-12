@@ -2,13 +2,14 @@ package com.example.therapistapp.tabibi.presentation.screens
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement.Absolute.Center
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -32,10 +33,14 @@ import com.example.therapistapp.tabibi.domain.models.Session
 import com.example.therapistapp.tabibi.domain.services.ConnectivityObserver
 import com.example.therapistapp.tabibi.domain.services.NetworkConnectivityObserver
 import com.example.therapistapp.tabibi.presentation.components.BottomNavigation
+import com.example.therapistapp.tabibi.presentation.data.days
 import com.example.therapistapp.tabibi.presentation.ui.theme.*
 import com.example.therapistapp.tabibi.presentation.utils.standardQuadFromTo
 import com.example.therapistapp.tabibi.presentation.viewmodels.SessionListViewMode
+import java.text.DateFormatSymbols
+import java.time.LocalDate
 
+@RequiresApi(Build.VERSION_CODES.O)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun SessionsScreen(
@@ -44,7 +49,10 @@ fun SessionsScreen(
     viewModel: SessionListViewMode = hiltViewModel()
 ) {
 
-    val state = viewModel.state.value
+    val state by remember {
+        viewModel.state
+    }
+
     val connectivityObserver = NetworkConnectivityObserver(ctx)
     val networkState by connectivityObserver.observe().collectAsState(
         initial = ConnectivityObserver.Status.Unavailable
@@ -97,9 +105,9 @@ fun SessionsScreen(
                                 .width(54.dp)
                                 .clip(CircleShape)
                                 .background(
-                                    if (networkState == ConnectivityObserver.Status.Available){
+                                    if (networkState == ConnectivityObserver.Status.Available) {
                                         Color.Green
-                                    }else{
+                                    } else {
                                         Gray
                                     }
                                 ),
@@ -137,7 +145,9 @@ fun SessionsScreen(
                         )
 
                         // Days chips
-                        DaysChips()
+                        DaysChips(
+                            viewModel = viewModel
+                        )
 
 
                         // Heading
@@ -206,10 +216,14 @@ fun Greeting(
 }
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun DaysChips() {
-    var selectedItem by remember {
-        mutableStateOf(0)
+fun DaysChips(
+    viewModel: SessionListViewMode
+) {
+
+    var selectedDay by remember {
+        mutableStateOf(2)
     }
 
     Row(
@@ -219,21 +233,27 @@ fun DaysChips() {
         ,
         horizontalArrangement = Arrangement.SpaceAround,
     ) {
-        DaysChipItem(dayNumber = 9, "Wed", isSelected = selectedItem == 0, onClick = {selectedItem = 0})
-        DaysChipItem(dayNumber = 10, "Thu", isSelected = selectedItem == 1, onClick = {selectedItem = 1})
-        DaysChipItem(dayNumber = 11, "Fri", isSelected = selectedItem == 2, onClick = {selectedItem = 2})
-        DaysChipItem(dayNumber = 12, "Sat", isSelected = selectedItem == 3, onClick = {selectedItem = 3})
-        DaysChipItem(dayNumber = 13, "Sun", isSelected = selectedItem == 4, onClick = {selectedItem = 4})
+        days.forEachIndexed { index, date ->
+            DaysChipItem(
+                date = date,
+                isSelected = selectedDay == index
+            ) {
+                selectedDay = index
+                // Change the state
+                viewModel.getSessions(date)
+            }
+        }
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun DaysChipItem(
-    dayNumber: Int,
-    day: String,
+    date: LocalDate ,
     isSelected: Boolean = false,
     onClick: () -> Unit
 ) {
+    val dateSymbols = DateFormatSymbols()
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
 
@@ -257,7 +277,7 @@ fun DaysChipItem(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "$dayNumber",
+                        text = "${date.dayOfMonth}",
                         color = Color.White,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
@@ -275,7 +295,7 @@ fun DaysChipItem(
                 contentAlignment = Alignment.Center
             ){
                 Text(
-                    text = "$dayNumber",
+                    text = "${date.dayOfMonth}",
                     color = Gray,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
@@ -284,7 +304,7 @@ fun DaysChipItem(
         }
 
         Text(
-            text = day,
+            text = dateSymbols.shortWeekdays[date.dayOfWeek.value],
             color = Gray,
             fontSize = 16.sp,
             fontWeight = FontWeight.SemiBold,
